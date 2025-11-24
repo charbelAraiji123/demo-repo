@@ -1,0 +1,12 @@
+# File: azure-pipelines.yml
+trigger:
+- main  # or your default branch
+
+pool:
+  name: Default  # use the agent pool your VM is in
+
+steps:
+- script: |
+    echo "Hello from my Azure VM self-hosted agent!"
+    hostname
+  displayName: 'Test VM agent'
