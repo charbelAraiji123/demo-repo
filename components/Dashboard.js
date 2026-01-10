@@ -12,7 +12,8 @@ const Dashboard = ({ navigation, route }) => {
 
   // Get only phoneNumber from params
   const userPhone = route.params?.user?.phoneNumber;
- const user = route.params?.user;
+  const user = route.params?.user;
+
   // Load balance from FileStorage
   useEffect(() => {
     const loadBalance = async () => {
@@ -49,8 +50,7 @@ const Dashboard = ({ navigation, route }) => {
         <View style={styles.actionRow}>
           <TouchableOpacity
             style={styles.actionButton}
-           onPress={() => navigation.navigate("Transfer", { user })}
-
+            onPress={() => navigation.navigate("Transfer", { user })}
           >
             <Text style={styles.actionText}>Send</Text>
           </TouchableOpacity>
@@ -65,18 +65,21 @@ const Dashboard = ({ navigation, route }) => {
 
         {/* Grid Cards */}
         <View style={styles.cardGrid}>
-          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('History',{user})}>
+          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('History', { user })}>
             <Text style={styles.cardTitle}>Transactions</Text>
             <Text style={styles.cardValue}>View All</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity 
+            style={styles.card}
+            onPress={() => navigation.navigate('Settings', { user })}
+          >
             <Text style={styles.cardTitle}>Settings</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.card, { width: '100%' }]} onPress={() => navigation.navigate('Support')}>
-            <Text style={styles.cardTitle}>Support</Text>
-          </TouchableOpacity>
+          <TouchableOpacity style={[styles.card, { width: '100%' }]} onPress={() => navigation.navigate('Support', { user })}>
+  <Text style={styles.cardTitle}>Support</Text>
+</TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -100,7 +103,7 @@ const Dashboard = ({ navigation, route }) => {
                 style={styles.modalButton}
                 onPress={() => {
                   setReceiveModalVisible(false);
-                  navigation.navigate('ClaimReceive', {user});
+                  navigation.navigate('ClaimReceive', { user });
                 }}>
                 <Text style={styles.modalButtonText}>Claim Receive</Text>
               </TouchableOpacity>
@@ -117,7 +120,6 @@ const Dashboard = ({ navigation, route }) => {
       </Modal>
 
       <BottomNav active="dashboard" navigation={navigation} user={user} />
- 
     </View>
   );
 };

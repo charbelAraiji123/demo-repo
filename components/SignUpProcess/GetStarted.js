@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, Modal, Alert, ScrollView
 } from 'react-native';
 import Header from '../Constants/Header';
-import FileStorage from '../../assets/FileStorage';
 
 const GetStartedScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -12,37 +11,15 @@ const GetStartedScreen = ({ navigation }) => {
   const [countryCode, setCountryCode] = useState('+961');
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  
-  <TouchableOpacity
-  style={{ marginTop: 20, backgroundColor: 'red', padding: 15, borderRadius: 12 }}
-  onPress={async () => {
-    const cleared = await FileStorage.clearAllData();
-    if (cleared) alert('Storage cleared! You can create new accounts.');
-  }}
->
-  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Clear Storage</Text>
-</TouchableOpacity>
-
-
   const handleSignup = async () => {
-  if (!phoneNumber.trim()) {
-    Alert.alert('Error', 'Please enter your phone number');
-    return;
-  }
+    if (!phoneNumber.trim()) {
+      Alert.alert('Error', 'Please enter your phone number');
+      return;
+    }
 
-  const fullPhone = countryCode + phoneNumber;
-
-  const exists = await FileStorage.phoneExists(fullPhone);
-  if (exists) {
-    Alert.alert('Error', 'This phone number is already registered. Please login instead.');
-    return;
-  }
-
-  // Open modal for OTP
-  Alert.alert('Verification', 'Enter code: 0000');
-  setModalVisible(true);
-};
-
+    // Open modal for OTP
+    setModalVisible(true);
+  };
 
   const handleChangeOtp = (text, index) => {
     if (text.length > 1) return;
@@ -52,91 +29,89 @@ const GetStartedScreen = ({ navigation }) => {
   };
 
   const handleVerify = async () => {
-  const code = otp.join("");
-  if (code !== '0000') {
-    Alert.alert('Error', 'Invalid verification code. Use 0000');
-    return;
-  }
+    const code = otp.join("");
+    if (code !== '0000') {
+      Alert.alert('Error', 'Invalid verification code');
+      return;
+    }
 
-  setModalVisible(false);
-  setOtp(["", "", "", ""]);
+    setModalVisible(false);
+    setOtp(["", "", "", ""]);
 
-  const fullPhone = countryCode + phoneNumber;
+    const fullPhone = countryCode + phoneNumber;
 
-  // Save user with initial balance 0
-  await FileStorage.addUser({ phone: fullPhone, name: "", balance: 0 });
-
-  navigation.navigate("PersonalInformation", { phoneNumber: fullPhone });
-};
+    // Just navigate with the phone number - don't save user yet
+    navigation.navigate("PersonalInformation", { phoneNumber: fullPhone });
+  };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
+      <Header text="" />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.container}>
-          <Header text="" />
-          <View style={styles.contentContainer}>
-            <Text style={styles.title}>Get Started</Text>
+        <View style={styles.content}>
+          <Text style={styles.title}>Get Started</Text>
 
-            <Text style={styles.description}>
-              Enter your mobile number. We will send you a confirmation code there.
-            </Text>
+          <Text style={styles.description}>
+            Enter your mobile number. We will send you a confirmation code there.
+          </Text>
 
-            <View style={styles.inputSection}>
-              <Text style={styles.label}>Mobile Number</Text>
-              <View style={styles.phoneRow}>
-                <TextInput
-                  style={styles.codeInput}
-                  value={countryCode}
-                  onChangeText={setCountryCode}
-                  keyboardType="phone-pad"
-                  maxLength={5}
-                  placeholderTextColor="#999"
-                />
-                <TextInput
-                  style={styles.numberInput}
-                  placeholder="Enter your number"
-                  placeholderTextColor="#999"
-                  keyboardType="phone-pad"
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                />
-              </View>
+          <View style={styles.inputSection}>
+            <Text style={styles.label}>Mobile Number</Text>
+            <View style={styles.phoneRow}>
+              <TextInput
+                style={styles.codeInput}
+                value={countryCode}
+                onChangeText={setCountryCode}
+                keyboardType="phone-pad"
+                maxLength={5}
+                placeholderTextColor="#999"
+              />
+              <TextInput
+                style={styles.numberInput}
+                placeholder="Enter your number"
+                placeholderTextColor="#999"
+                keyboardType="phone-pad"
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+              />
             </View>
-
-            <Text style={styles.terms}>
-              By entering your phone number, you agree to our terms and conditions.
-            </Text>
-
-            <TouchableOpacity onPress={handleSignup} style={styles.button}>
-              <Text style={styles.buttonText}>Sign Up</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.loginLink}
-              onPress={() => navigation.navigate('Login')}
-            >
-              <Text style={styles.loginLinkText}>
-                Already have an account? <Text style={styles.loginLinkBold}>Log In</Text>
-              </Text>
-            </TouchableOpacity>
           </View>
+
+          <Text style={styles.terms}>
+            By entering your phone number, you agree to our terms and conditions.
+          </Text>
+
+          <TouchableOpacity onPress={handleSignup} style={styles.button}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.loginLink}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.loginLinkText}>
+              Already have an account? <Text style={styles.loginLinkBold}>Log In</Text>
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Confirmation Code Modal */}
       <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView 
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Enter Confirmation Code</Text>
-            <Text style={styles.modalText}>Enter the code: 0000</Text>
+            <Text style={styles.modalText}>We've sent a verification code to your phone</Text>
 
             <View style={styles.otpContainer}>
               {otp.map((digit, index) => (
@@ -159,7 +134,7 @@ const GetStartedScreen = ({ navigation }) => {
               <Text style={styles.closeText}>Cancel</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </KeyboardAvoidingView>
   );
@@ -171,11 +146,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#d9daddff',
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: 40,
   },
-  contentContainer: {
-    paddingHorizontal: 25,
-    paddingVertical: 35,
+  content: {
+    padding: 25,
+    paddingTop: 35,
   },
   title: {
     fontSize: 39,
@@ -191,7 +167,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   inputSection: {
-    marginBottom: 0,
+    marginBottom: 20,
   },
   label: {
     fontSize: 18,

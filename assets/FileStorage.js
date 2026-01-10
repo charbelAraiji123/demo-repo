@@ -124,6 +124,51 @@ const FileStorage = {
     return true;
   },
 
+  updateUser: async (updatedUser) => {
+    try {
+      const users = await FileStorage.getUsers();
+
+      const idx = users.findIndex(
+        (u) =>
+          normalizePhone(u.phoneNumber || u.phone) ===
+          normalizePhone(updatedUser.phoneNumber || updatedUser.phone)
+      );
+
+      if (idx === -1) return false;
+
+      users[idx] = { ...users[idx], ...updatedUser };
+
+      await AsyncStorage.setItem(FILE_STORAGE_KEY, JSON.stringify(users));
+      return true;
+    } catch (err) {
+      console.log('updateUser error:', err);
+      return false;
+    }
+  },
+
+  deleteUser: async (phoneNumber) => {
+    try {
+      const users = await FileStorage.getUsers();
+
+      const filteredUsers = users.filter(
+        (u) =>
+          normalizePhone(u.phoneNumber || u.phone) !==
+          normalizePhone(phoneNumber)
+      );
+
+      if (filteredUsers.length === users.length) {
+        // User not found
+        return false;
+      }
+
+      await AsyncStorage.setItem(FILE_STORAGE_KEY, JSON.stringify(filteredUsers));
+      return true;
+    } catch (err) {
+      console.log('deleteUser error:', err);
+      return false;
+    }
+  },
+
   // -------------------------------------------------------------
   // Pending Transfers
   // -------------------------------------------------------------
@@ -131,8 +176,6 @@ const FileStorage = {
     const raw = await AsyncStorage.getItem(PENDING_TRANSFERS_KEY);
     return raw ? JSON.parse(raw) : [];
   },
-
-  // (❌ REMOVED the invalid newTransfer section here — it was crashing your app)
 
   getPendingTransfersForUser: async (phone) => {
     const normalizedPhone = normalizePhone(phone);
@@ -208,6 +251,48 @@ const FileStorage = {
   printUsers: async () => {
     const users = await FileStorage.getUsers();
     console.log('Users in storage:', users);
+  },
+
+  saveUsersToFile: async () => {
+    try {
+      const users = await FileStorage.getUsers();
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileName = `users_backup_${timestamp}.json`;
+      
+      // For React Native, we'll use expo-file-system if available
+      // Otherwise, we'll save to AsyncStorage with a different key
+      const backupKey = `backup_${timestamp}`;
+      await AsyncStorage.setItem(backupKey, JSON.stringify(users, null, 2));
+      
+      console.log(`Users backed up to: ${backupKey}`);
+      console.log('Total users backed up:', users.length);
+      
+      return { success: true, key: backupKey, count: users.length };
+    } catch (err) {
+      console.log('Error saving users to file:', err);
+      return { success: false, error: err.message };
+    }
+  },
+
+  getAllBackups: async () => {
+    try {
+      const allKeys = await AsyncStorage.getAllKeys();
+      const backupKeys = allKeys.filter(key => key.startsWith('backup_'));
+      return backupKeys;
+    } catch (err) {
+      console.log('Error getting backups:', err);
+      return [];
+    }
+  },
+
+  loadBackup: async (backupKey) => {
+    try {
+      const data = await AsyncStorage.getItem(backupKey);
+      return data ? JSON.parse(data) : null;
+    } catch (err) {
+      console.log('Error loading backup:', err);
+      return null;
+    }
   },
 
   clearAllData: async () => {

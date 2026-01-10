@@ -3,10 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Linkin
 import Header from '../Constants/Header';
 import BottomNav from '../Constants/BottomNav';
 
-const Support = ({ navigation }) => {
+const Support = ({ navigation, route }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+
+  // Get user from route params
+  const user = route.params?.user;
 
   const handleSubmit = () => {
     console.log('Message sent:', { name, email, message });
@@ -77,8 +80,8 @@ const Support = ({ navigation }) => {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <BottomNav active="support" navigation={navigation} />
+      {/* Bottom Navigation - Now passing the user prop */}
+      <BottomNav active="support" navigation={navigation} user={user} />
     </SafeAreaView>
   );
 };

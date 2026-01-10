@@ -9,7 +9,7 @@ const Welcome = ({ navigation }) => {
 
   const handleLogin = () => {
     navigation.navigate("Login");
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -19,7 +19,6 @@ const Welcome = ({ navigation }) => {
 
       {/* Logo + Text */}
       <View style={styles.logoContainer}>
-       {/* <Text style={styles.title}>PECUNIA</Text> */}
         <Text style={styles.subtitle}>
           Manage your money easily, securely, and quickly.
         </Text>
@@ -47,16 +46,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
     marginTop: -150,
-    
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: 150,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '700',
-    color: '#0A1F44',
   },
   subtitle: {
     fontSize: 18,
@@ -91,6 +84,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 30,
     alignItems: 'center',
+    marginBottom: 15,
   },
   buttonTextPrimary: {
     color: '#fff',
